@@ -1,5 +1,5 @@
-﻿using Main.Application.Factory;
-using Main.Infrastructure.Entities;
+﻿using Application.Base;
+using Entities;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Main.Controllers

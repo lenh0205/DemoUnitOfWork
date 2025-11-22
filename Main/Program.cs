@@ -1,4 +1,5 @@
-using Main.Application.DendencyInjection;
+
+using Main.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 
