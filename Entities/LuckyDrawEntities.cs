@@ -45,15 +45,28 @@
     public class Reward
     {
         public Guid Id { get; set; }
-        public Guid Type { get; set; }
+        public RewardType Type { get; set; }
         public string? Metadata { get; set; } = string.Empty;
     }
 
-    public class WinnerSelector
+    public class Winner
     {
-        public Entry PickRandomWinner(List<Entry> entries)
+        public Guid Id { get; private set; }
+        public Guid CampaignId { get; private set; }
+        public Guid EntryId { get; private set; }
+        public DateTime AwardedAt { get; private set; }
+
+        public Winner(Guid winnerId, Guid campaignId, Guid entryId, DateTime awardedAt)
         {
-            return entries[0];
+            Id = winnerId;
+            CampaignId = campaignId;
+            EntryId = entryId;
+            AwardedAt = awardedAt;
         }
+    }
+
+    public enum RewardType
+    {
+        Coupon
     }
 }

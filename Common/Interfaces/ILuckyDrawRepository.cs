@@ -1,30 +1,31 @@
 ﻿using Entities;
+using System.Reflection;
 
 namespace Common.Interfaces
 {
     public interface ICampaignRepository
     {
-        Campaign? GetById(Guid CampaignId);
+        Campaign? GetById(Guid id);
         void Add(Campaign campaign);
+        IList<Campaign> ListAll();
     }
-
+    public interface ITicketRepository
+    {
+        Ticket? GetById(Guid id);
+        Ticket? GetByOrderId(Guid orderId);
+        void Add(Ticket ticket);
+        void Update(Ticket ticket);
+        int CountAvailableTickets(Guid customerId);
+    }
     public interface IEntryRepository
     {
         void Add(Entry entry);
         int CountEntriesForCampaignByCustomer(Guid campaignId, Guid customerId);
         IList<Entry> ListEntriesByCampaign(Guid campaignId);
     }
-
-    public interface ITicketRepository
+    public interface IWinnerRepository
     {
-        Ticket? GetById(Guid TicketId);
-        Ticket? GetByOrderId(Guid orderId);
-        void Add(Ticket ticket);
-        void Update(Ticket ticket);
-        int CountAvailableTickets(Guid CustomerId);
-    }
-
-    public interface INotificationService
-    {
+        Winner? GetWinnerByCampaign(Guid campaignId);
+        void Add(Winner winner);
     }
 }

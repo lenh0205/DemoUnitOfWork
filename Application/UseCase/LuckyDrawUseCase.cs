@@ -1,5 +1,7 @@
 ﻿using Common.Interfaces;
 using Entities;
+using System.Security.Cryptography;
+using System.Xml.Linq;
 
 namespace Application.UseCase
 {
@@ -8,17 +10,19 @@ namespace Application.UseCase
         private readonly ICampaignRepository _campaignRepo;
         private readonly ITicketRepository _ticketRepo;
         private readonly IEntryRepository _entryRepo;
+        private readonly IWinnerRepository _winnerRepo;
 
         public LuckyDrawUseCase(
             ICampaignRepository campainRepo,
             ITicketRepository ticketRepo,
             IEntryRepository entryRepo,
-            WinnerSelector winnerSelector
+            IWinnerRepository winnerRepo
         )
         {
             _campaignRepo = campainRepo;
             _ticketRepo = ticketRepo;
             _entryRepo = entryRepo;
+            _winnerRepo = winnerRepo;
         }
 
         public Ticket CreateTicketUseCase(Guid orderId, Guid customerId, decimal orderAmount)
@@ -35,13 +39,31 @@ namespace Application.UseCase
             var ticket = new Ticket
             {
                 Id = Guid.NewGuid(),
-                CustomerId = customerId,
+                OwnerId = customerId,
                 OrderId = orderId,
                 IssuedAt = DateTime.UtcNow
             };
             _ticketRepo.Add(ticket);
             return ticket;
         }
+
+        public Campaign CreateCampaignUseCase(Guid sellerId, string name, DateTime startAt, DateTime endAt, int maxEntriesPerUser, Reward reward)
+        {
+            if (endAt <= startAt) throw new InvalidOperationException("End time must be after start time.");
+            var campaign = new Campaign
+            {
+                Id = Guid.NewGuid(),
+                SellerId = sellerId,
+                Name = name,
+                StartAt = startAt,
+                EndAt = endAt,
+                MaxEntriesPerUser = maxEntriesPerUser,
+                Reward = reward
+            };
+            _campaignRepo.Add(campaign);
+            return campaign;
+        }
+
         public Entry SubmitEntryUseCase(Guid campaignId, Guid customerId, Guid ticketId)
         {
             var campaign = _campaignRepo.GetById(campaignId) ?? throw new InvalidOperationException("Campaign not found");
@@ -70,21 +92,37 @@ namespace Application.UseCase
             _entryRepo.Add(entry);
             return entry;
         }
-        public void GetCampaignAnalyticsQuery()
-        {
 
-        }
-        public Entry? PickWinnerUseCase(Guid campaignId)
+        private static readonly System.Collections.Concurrent.ConcurrentDictionary<Guid, object> _drawLocks = new();
+        public Winner? PickWinnerUseCase(Guid campaignId)
         {
-            var entries = _entryRepo.ListEntriesByCampaign(campaignId).ToList();
-            if (!entries.Any()) return null;
+            // if already drawn, return existing
+            var existingWinner = _winnerRepo.GetWinnerByCampaign(campaignId);
+            if (existingWinner != null) return existingWinner;
 
-            var rng = System.Security.Cryptography.RandomNumberGenerator.Create();
-            var bytes = new byte[4];
-            rng.GetBytes(bytes);
-            var seed = BitConverter.ToUInt32(bytes, 0);
-            var index = (int)(seed % entries.Count);
-            return entries[index];
+            // obtain in-process lock for this campaign
+            var lockObj = _drawLocks.GetOrAdd(campaignId, _ => new object());
+            lock (lockObj)
+            {
+                // Double-check after acquiring lock
+                existingWinner = _winnerRepo.GetWinnerByCampaign(campaignId);
+                if (existingWinner != null) return existingWinner;
+
+                var entries = _entryRepo.ListEntriesByCampaign(campaignId).ToList();
+                if (!entries.Any()) return null;
+
+                // secure RNG
+                using var rng = RandomNumberGenerator.Create();
+                var bytes = new byte[4];
+                rng.GetBytes(bytes);
+                var seed = BitConverter.ToUInt32(bytes, 0);
+                var index = (int)(seed % entries.Count);
+                var chosen = entries[index];
+
+                var winner = new Winner(Guid.NewGuid(), campaignId, chosen.Id, DateTime.UtcNow);
+                _winnerRepo.Add(winner);
+                return winner;
+            }
         }
     }
 }
