@@ -1,7 +1,8 @@
 ﻿using Common.Base;
-using Common.Interfaces;
 using Infrastructure.Base;
 using Infrastructure.DatabaseContext;
+using InterfaceAdapter.Repositories;
+using InterfaceAdapter.UnitOfWorks;
 
 namespace Infrastructure.UnitOfWork
 {

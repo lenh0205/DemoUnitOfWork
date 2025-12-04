@@ -1,9 +1,11 @@
-﻿using Application.Base;
-using Common.Interfaces;
+﻿using Application;
+using Application.Base;
 using Infrastructure.Base;
 using Infrastructure.DatabaseContext;
 using Infrastructure.UnitOfWork;
+using InterfaceAdapter.UnitOfWorks;
 using Main.Base;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 
 namespace Main.Configuration
@@ -14,6 +16,7 @@ namespace Main.Configuration
         {
             services.AddControllers();
             services.AddEndpointsApiExplorer();
+            services.AddMediatR(typeof(ApplicationMediatEntryPoint).Assembly);
             services.AddSwaggerGen();
         }
 

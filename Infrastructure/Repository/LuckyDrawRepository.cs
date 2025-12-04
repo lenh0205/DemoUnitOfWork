@@ -1,5 +1,5 @@
-﻿using Common.Interfaces;
-using Entities;
+﻿using Entities;
+using InterfaceAdapter.Repositories;
 using System.Collections.Concurrent;
 
 namespace Infrastructure.Repository

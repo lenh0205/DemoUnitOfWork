@@ -1,7 +1,7 @@
 ﻿using Entities;
 using System.Reflection;
 
-namespace Common.Interfaces
+namespace InterfaceAdapter.Repositories
 {
     public interface ICampaignRepository
     {

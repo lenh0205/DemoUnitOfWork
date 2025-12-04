@@ -1,4 +1,4 @@
-﻿using Common.Interfaces;
+﻿using InterfaceAdapter.UnitOfWorks;
 
 namespace Application.Base
 {

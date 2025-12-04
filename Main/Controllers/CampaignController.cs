@@ -1,6 +1,7 @@
 using Application.UseCase;
-using Common.Interfaces;
 using Entities;
+using InterfaceAdapter.Repositories;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using ServiceStack;
 
@@ -14,18 +15,21 @@ namespace Main.Controllers
         private readonly ICampaignRepository _campaignRepo;
         private readonly IEntryRepository _entryRepo;
         private readonly IWinnerRepository _winnerRepo;
+        private readonly IMediator _mediator;
 
         public CampaignsController(
             LuckyDrawUseCase luckyDrawUseCase, 
             ICampaignRepository campaignRepo,
             IEntryRepository entryRepo,
-            IWinnerRepository winnerRepo
-            )
+            IWinnerRepository winnerRepo,
+            IMediator mediator
+        )
         {
             usecase = luckyDrawUseCase;
             _campaignRepo = campaignRepo;
             _entryRepo = entryRepo;
             _winnerRepo = winnerRepo;
+            _mediator = mediator;
         }
 
         [HttpPost]

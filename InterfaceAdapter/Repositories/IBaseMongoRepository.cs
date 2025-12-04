@@ -1,4 +1,4 @@
-﻿namespace Common.Interfaces
+﻿namespace InterfaceAdapter.Repositories
 {
     public interface IBaseMongoRepository<TEntity>
     {

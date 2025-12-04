@@ -1,4 +1,6 @@
-﻿namespace Common.Interfaces
+﻿using InterfaceAdapter.Repositories;
+
+namespace InterfaceAdapter.UnitOfWorks
 {
     public interface IMongoUnitOfWork : IDisposable
     {

@@ -1,6 +1,7 @@
 ﻿using Common.Base;
+using InterfaceAdapter.Repositories;
 
-namespace Common.Interfaces
+namespace InterfaceAdapter.UnitOfWorks
 {
     public interface IUnitOfWork : IDisposable, IBaseFactoryImplementation
     {

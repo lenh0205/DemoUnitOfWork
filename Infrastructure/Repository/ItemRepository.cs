@@ -1,7 +1,7 @@
-﻿using Common.Interfaces;
-using Entities;
+﻿using Entities;
 using Infrastructure.Base;
 using Infrastructure.DatabaseContext;
+using InterfaceAdapter.Repositories;
 
 namespace Infrastructure.Repository
 {

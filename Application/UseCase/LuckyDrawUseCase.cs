@@ -1,7 +1,6 @@
-﻿using Common.Interfaces;
-using Entities;
+﻿using Entities;
+using InterfaceAdapter.Repositories;
 using System.Security.Cryptography;
-using System.Xml.Linq;
 
 namespace Application.UseCase
 {
