@@ -1,9 +1,10 @@
+using Application.Commands;
+using Application.Queries;
 using Application.UseCase;
 using Entities;
 using InterfaceAdapter.Repositories;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using ServiceStack;
 
 namespace Main.Controllers
 {
@@ -18,7 +19,7 @@ namespace Main.Controllers
         private readonly IMediator _mediator;
 
         public CampaignsController(
-            LuckyDrawUseCase luckyDrawUseCase, 
+            LuckyDrawUseCase luckyDrawUseCase,
             ICampaignRepository campaignRepo,
             IEntryRepository entryRepo,
             IWinnerRepository winnerRepo,
@@ -33,7 +34,7 @@ namespace Main.Controllers
         }
 
         [HttpPost]
-        public IActionResult CreateCampaign([FromBody] CreateCampaignRequest req)
+        public async Task<IActionResult> CreateCampaign([FromBody] CreateCampaignRequest req)
         {
             try
             {
@@ -42,8 +43,8 @@ namespace Main.Controllers
                     Type = req.RewardType,
                     Metadata = req.RewardMetadata
                 };
-                var c = usecase.CreateCampaignUseCase(req.SellerId, req.Name, req.StartAt.ToUniversalTime(), req.EndAt.ToUniversalTime(), req.MaxEntriesPerUser, reward);
-                return Ok(new { campaignId = c.Id });
+                var campaign = await _mediator.Send(new CreateCampaignCommand(req.SellerId, req.Name, req.StartAt.ToUniversalTime(), req.EndAt.ToUniversalTime(), req.MaxEntriesPerUser, reward));
+                return Ok(new { campaignId = campaign.Id });
             }
             catch (Exception ex)
             {
@@ -52,28 +53,42 @@ namespace Main.Controllers
         }
 
         [HttpGet]
-        public IActionResult ListAll()
+        public async Task<IActionResult> ListAll()
         {
-            var list = _campaignRepo.ListAll()
-                .Select(c => new { id = c.Id, name = c.Name, startAt = c.StartAt, endAt = c.EndAt })
-                .ToList();
+            var list = await _mediator.Send(new GetCampaignListQuery());
             return Ok(list);
         }
 
         [HttpGet("{campaignId}")]
-        public IActionResult GetById(Guid campaignId)
-        {
-            var c = _campaignRepo.GetById(campaignId);
-            if (c == null) return NotFound();
-            return Ok(new { id = c.Id, name = c.Name, startAt = c.StartAt, endAt = c.EndAt, maxEntriesPerUser = c.MaxEntriesPerUser, reward = c.Reward?.Metadata });
-        }
-
-        [HttpPost("{campaignId}/entries")]
-        public IActionResult SubmitEntry(Guid campaignId, [FromBody] SubmitEntryRequest req)
+        public async Task<IActionResult> GetById(Guid campaignId)
         {
             try
             {
-                var entry = usecase.SubmitEntryUseCase(campaignId, req.CustomerId, req.TicketId);
+                var campaign = await _mediator.Send(new GetCampaignByIdQuery(campaignId));
+
+                if (campaign == null) return NotFound();
+                return Ok(new
+                {
+                    id = campaign.Id,
+                    name = campaign.Name,
+                    startAt = campaign.StartAt,
+                    endAt = campaign.EndAt,
+                    maxEntriesPerUser = campaign.MaxEntriesPerUser,
+                    reward = campaign.Reward?.Metadata
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpPost("{campaignId}/entries")]
+        public async Task<IActionResult> SubmitEntry(Guid campaignId, [FromBody] SubmitEntryRequest req)
+        {
+            try
+            {
+                var entry = await _mediator.Send(new SubmitEntryCommand(campaignId, req.CustomerId, req.TicketId));
                 return Ok(new { entryId = entry.Id, submittedAt = entry.SubmittedAt });
             }
             catch (Exception ex)
@@ -83,22 +98,28 @@ namespace Main.Controllers
         }
 
         [HttpGet("{campaignId}/entries")]
-        public IActionResult ListEntries(Guid campaignId)
-        {
-            var entries = _entryRepo.ListEntriesByCampaign(campaignId)
-                .Select(e => new { entryId = e.Id, customerId = e.CustomerId, ticketId = e.TicketId, submittedAt = e.SubmittedAt })
-                .ToList();
-            return Ok(entries);
-        }
-
-        [HttpPost("{campaignId}/draw")]
-        public IActionResult Draw(Guid campaignId)
+        public async Task<IActionResult> ListEntries(Guid campaignId)
         {
             try
             {
-                var winner = usecase.PickWinnerUseCase(campaignId);
+                var entries = await _mediator.Send(new GetEntriesListByCampaignIdQuery(campaignId));
+                return Ok(entries);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpPost("{campaignId}/draw")]
+        public async Task<IActionResult> Draw(Guid campaignId)
+        {
+            try
+            {
+                var winner = await _mediator.Send(new PickWinnerCommand(campaignId));
                 if (winner == null) return NotFound(new { message = "No entries" });
-                var winnerEntry = _entryRepo.ListEntriesByCampaign(campaignId).FirstOrDefault(e => e.Id == winner.EntryId);
+
+                var winnerEntry = await _mediator.Send(new GetWinnerEntryQuery(campaignId, winner.EntryId));
                 return Ok(new { winnerEntryId = winner.EntryId, customerId = winnerEntry?.CustomerId, awardedAt = winner.AwardedAt });
             }
             catch (Exception ex)
@@ -108,11 +129,12 @@ namespace Main.Controllers
         }
 
         [HttpGet("{campaignId}/winner")]
-        public IActionResult GetWinner(Guid campaignId)
+        public async Task<IActionResult> GetWinner(Guid campaignId)
         {
-            var winner = _winnerRepo.GetWinnerByCampaign(campaignId);
+            var winner = await _mediator.Send(new GetWinnerByCampaignIdQuery(campaignId));
             if (winner == null) return NotFound();
-            var winnerEntry = _entryRepo.ListEntriesByCampaign(campaignId).FirstOrDefault(e => e.Id == winner.EntryId);
+
+            var winnerEntry = await _mediator.Send(new GetWinnerEntryQuery(campaignId, winner.EntryId));
             return Ok(new { winnerEntryId = winner.EntryId, customerId = winnerEntry?.CustomerId, awardedAt = winner.AwardedAt });
         }
     }
