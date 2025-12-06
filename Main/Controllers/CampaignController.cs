@@ -1,35 +1,19 @@
 using Application.Commands;
 using Application.Queries;
-using Application.UseCase;
 using Entities;
-using InterfaceAdapter.Repositories;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Main.Controllers
 {
     [ApiController]
-    [Microsoft.AspNetCore.Mvc.Route("api/campaigns")]
+    [Route("api/campaigns")]
     public class CampaignsController : ControllerBase
     {
-        private readonly LuckyDrawUseCase usecase;
-        private readonly ICampaignRepository _campaignRepo;
-        private readonly IEntryRepository _entryRepo;
-        private readonly IWinnerRepository _winnerRepo;
         private readonly IMediator _mediator;
 
-        public CampaignsController(
-            LuckyDrawUseCase luckyDrawUseCase,
-            ICampaignRepository campaignRepo,
-            IEntryRepository entryRepo,
-            IWinnerRepository winnerRepo,
-            IMediator mediator
-        )
+        public CampaignsController(IMediator mediator)
         {
-            usecase = luckyDrawUseCase;
-            _campaignRepo = campaignRepo;
-            _entryRepo = entryRepo;
-            _winnerRepo = winnerRepo;
             _mediator = mediator;
         }
 

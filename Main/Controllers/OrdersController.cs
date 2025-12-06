@@ -1,4 +1,6 @@
-﻿using Application.UseCase;
+﻿using Application.Commands;
+using Application.UseCase;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Main.Controllers
@@ -8,18 +10,20 @@ namespace Main.Controllers
     public class OrdersController : ControllerBase
     {
         private readonly LuckyDrawUseCase usecase;
+        private readonly IMediator _mediator;
 
-        public OrdersController(LuckyDrawUseCase luckyDrawUseCase)
+        public OrdersController(LuckyDrawUseCase luckyDrawUseCase, IMediator mediator)
         {
             usecase = luckyDrawUseCase;
+            _mediator = mediator;
         }
 
         [HttpPost]
-        public IActionResult CreateOrder([FromBody] CreateOrderRequest req)
+        public async Task<IActionResult> CreateOrder([FromBody] CreateOrderRequest req)
         {
             try
             {
-                var ticket = usecase.CreateTicketUseCase(req.OrderId, req.CustomerId, req.Amount);
+                var ticket = await _mediator.Send(new CreateTicketCommand(req.OrderId, req.CustomerId, req.Amount));
                 return Ok(new { ticketId = ticket.Id, issuedAt = ticket.IssuedAt });
             }
             catch (Exception ex)
