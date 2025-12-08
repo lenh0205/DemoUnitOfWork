@@ -1,5 +1,6 @@
 ﻿using Application.Base;
 using Entities;
+using InterfaceAdapter.Repositories;
 using MediatR;
 
 namespace Application.Commands
@@ -18,9 +19,9 @@ namespace Application.Commands
             if (request.OrderAmount < threshold)
                 throw new InvalidOperationException("Order amount below threshold for ticket issuance.");
 
-            var ticketRepo = _unitOfWork.GetRepository<Ticket>();
+            var ticketRepo = _unitOfWork.GetInstance<ITicketRepository>();
             var existing = ticketRepo.GetByOrderId(request.OrderId);
-            ticketRepo.GetByID(request.OrderId);
+            ticketRepo.GetById(request.OrderId);
             if (existing != null) return existing; // idempotent
 
             var ticket = new Ticket

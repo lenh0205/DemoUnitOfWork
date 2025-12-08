@@ -1,5 +1,4 @@
 ﻿using Application.Commands;
-using Application.UseCase;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,12 +8,10 @@ namespace Main.Controllers
     [Route("api/orders")]
     public class OrdersController : ControllerBase
     {
-        private readonly LuckyDrawUseCase usecase;
         private readonly IMediator _mediator;
 
-        public OrdersController(LuckyDrawUseCase luckyDrawUseCase, IMediator mediator)
+        public OrdersController(IMediator mediator)
         {
-            usecase = luckyDrawUseCase;
             _mediator = mediator;
         }
 

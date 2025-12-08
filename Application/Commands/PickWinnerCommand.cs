@@ -1,5 +1,6 @@
 ﻿using Application.Base;
 using Entities;
+using InterfaceAdapter.Repositories;
 using MediatR;
 using System.Collections.Concurrent;
 using System.Security.Cryptography;
@@ -18,8 +19,8 @@ namespace Application.Commands
 
         public async Task<Winner> Handle(PickWinnerCommand request, CancellationToken cancellationToken)
         {
-            var winnerRepo = _unitOfWork.GetRepository<Winner>();
-            var entryRepo = _unitOfWork.GetRepository<Entry>();
+            var winnerRepo = _unitOfWork.GetInstance<IWinnerRepository>();
+            var entryRepo = _unitOfWork.GetInstance<IEntryRepository>();
 
             var existingWinner = winnerRepo.GetWinnerByCampaign(request.CampaignId);
             if (existingWinner != null) return existingWinner;
@@ -45,7 +46,7 @@ namespace Application.Commands
 
                 var winner = new Winner(Guid.NewGuid(), request.CampaignId, chosen.Id, DateTime.UtcNow);
                 winnerRepo.InsertAsync(winner);
-                await _unitOfWork.CommitAsync();
+                _unitOfWork.CommitAsync();
                 return winner;
             }
         }

@@ -1,5 +1,6 @@
 ﻿using Application.Base;
 using Entities;
+using InterfaceAdapter.Repositories;
 using MediatR;
 
 namespace Application.Queries
@@ -14,7 +15,7 @@ namespace Application.Queries
 
         public async Task<Entry> Handle(GetWinnerEntryQuery request, CancellationToken cancellationToken)
         {
-            return _unitOfWork.GetRepository<Entry>().ListEntriesByCampaign(request.CampaignId).FirstOrDefault(e => e.Id == request.WinnerEntryId);
+            return _unitOfWork.GetInstance<IEntryRepository>().ListEntriesByCampaign(request.CampaignId).FirstOrDefault(e => e.Id == request.WinnerEntryId);
         }
     }
 }

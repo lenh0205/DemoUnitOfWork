@@ -1,5 +1,6 @@
 ﻿using Application.Base;
 using Entities;
+using InterfaceAdapter.Repositories;
 using MediatR;
 
 namespace Application.Commands
@@ -25,7 +26,7 @@ namespace Application.Commands
                 MaxEntriesPerUser = request.MaxEntriesPerUser,
                 Reward = request.Reward
             };
-            await _unitOfWork.GetRepository<Campaign>().InsertAsync(campaign);
+            await _unitOfWork.GetInstance<ICampaignRepository>().InsertAsync(campaign);
             await _unitOfWork.CommitAsync();
             return campaign;
         }

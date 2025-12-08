@@ -1,5 +1,5 @@
 ﻿using Infrastructure.DatabaseContext;
-using InterfaceAdapter.Repositories;
+using InterfaceAdapter.Base;
 using MongoDB.Driver;
 
 namespace Infrastructure.Base

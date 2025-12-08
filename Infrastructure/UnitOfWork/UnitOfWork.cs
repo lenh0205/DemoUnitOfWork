@@ -1,8 +1,8 @@
 ﻿using Common.Base;
 using Infrastructure.Base;
 using Infrastructure.DatabaseContext;
+using InterfaceAdapter.Layer;
 using InterfaceAdapter.Repositories;
-using InterfaceAdapter.UnitOfWorks;
 using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Infrastructure.UnitOfWork
@@ -18,8 +18,7 @@ namespace Infrastructure.UnitOfWork
         }
 
         #region ----------> Config Repository
-        public IRepository<T> GetRepository<T>() => GetInstance<IRepository<T>>();
-
+        //
         #endregion
 
 

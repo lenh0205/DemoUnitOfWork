@@ -1,5 +1,6 @@
 ﻿using Application.Base;
 using Entities;
+using InterfaceAdapter.Repositories;
 using MediatR;
 
 namespace Application.Commands
@@ -15,9 +16,9 @@ namespace Application.Commands
 
         public async Task<Entry> Handle(SubmitEntryCommand request, CancellationToken cancellationToken)
         {
-            var campaignRepo = _unitOfWork.GetRepository<Campaign>();
-            var ticketRepo = _unitOfWork.GetRepository<Ticket>();
-            var entryRepo = _unitOfWork.GetRepository<Entry>();
+            var campaignRepo = _unitOfWork.GetInstance<ICampaignRepository>();
+            var ticketRepo = _unitOfWork.GetInstance<ITicketRepository>();
+            var entryRepo = _unitOfWork.GetInstance<IEntryRepository>();
 
             var campaign = campaignRepo.GetById(request.CampaignId) ?? throw new InvalidOperationException("Campaign not found");
             var now = DateTime.UtcNow;

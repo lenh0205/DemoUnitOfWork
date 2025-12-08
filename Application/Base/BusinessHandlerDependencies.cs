@@ -1,5 +1,5 @@
 ﻿
-using InterfaceAdapter.UnitOfWorks;
+using InterfaceAdapter.Layer;
 
 namespace Application.Base
 {

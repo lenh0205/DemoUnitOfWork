@@ -1,8 +1,7 @@
 ﻿using Common.Base;
 using Infrastructure.Base;
 using Infrastructure.DatabaseContext;
-using InterfaceAdapter.Repositories;
-using InterfaceAdapter.UnitOfWorks;
+using InterfaceAdapter.Layer;
 
 namespace Infrastructure.UnitOfWork
 {
@@ -14,8 +13,6 @@ namespace Infrastructure.UnitOfWork
         {
             _context = repositoryDependencies.MongoDbContext;
         }
-
-        public IMongoRepository<T> GetRepository<T>() => GetInstance<IMongoRepository<T>>();
 
         public async Task<bool> Commit()
         {

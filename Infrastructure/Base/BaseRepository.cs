@@ -1,11 +1,11 @@
 ﻿using Infrastructure.DatabaseContext;
-using InterfaceAdapter.Repositories;
+using InterfaceAdapter.Base;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 
 namespace Infrastructure.Base
 {
-    public abstract class BaseRepository<TEntity, TContext> : IBaseRepository<TEntity>
+    public abstract class BaseRepository<TEntity> : IBaseRepository<TEntity>
     where TEntity : class
     {
         protected readonly IDbContext _context;
