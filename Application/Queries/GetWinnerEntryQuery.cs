@@ -1,5 +1,5 @@
-﻿using Application.Base;
-using Entities;
+﻿using Entities;
+using InterfaceAdapter.Layer;
 using InterfaceAdapter.Repositories;
 using MediatR;
 
@@ -7,10 +7,13 @@ namespace Application.Queries
 {
     public record GetWinnerEntryQuery(Guid CampaignId, Guid WinnerEntryId) : IRequest<Entry>;
 
-    public class GetWinnerEntryHandler : BaseBusinessHandler, IRequestHandler<GetWinnerEntryQuery, Entry>
+    public class GetWinnerEntryHandler : IRequestHandler<GetWinnerEntryQuery, Entry>
     {
-        public GetWinnerEntryHandler(IBusinessHandlerDependencies businessHandlerDependencies) : base(businessHandlerDependencies)
+        private readonly IUnitOfWork _unitOfWork;
+
+        public GetWinnerEntryHandler(IUnitOfWork unitOfWork)
         {
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<Entry> Handle(GetWinnerEntryQuery request, CancellationToken cancellationToken)

@@ -1,5 +1,5 @@
-﻿using Application.Base;
-using Entities;
+﻿using Entities;
+using InterfaceAdapter.Layer;
 using InterfaceAdapter.Repositories;
 using MediatR;
 
@@ -7,10 +7,13 @@ namespace Application.Queries
 {
     public record GetCampaignByIdQuery(Guid CampaignId) : IRequest<Campaign>;
 
-    public class GetCampaignByIdHandler : BaseBusinessHandler, IRequestHandler<GetCampaignByIdQuery, Campaign>
+    public class GetCampaignByIdHandler : IRequestHandler<GetCampaignByIdQuery, Campaign>
     {
-        public GetCampaignByIdHandler(IBusinessHandlerDependencies businessHandlerDependencies) : base(businessHandlerDependencies)
+        private readonly IUnitOfWork _unitOfWork;
+
+        public GetCampaignByIdHandler(IUnitOfWork unitOfWork)
         {
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<Campaign> Handle(GetCampaignByIdQuery request, CancellationToken cancellationToken)

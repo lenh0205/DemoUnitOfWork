@@ -1,5 +1,5 @@
-﻿using Application.Base;
-using Entities;
+﻿using Entities;
+using InterfaceAdapter.Layer;
 using InterfaceAdapter.Repositories;
 using MediatR;
 
@@ -7,11 +7,13 @@ namespace Application.Commands
 {
     public record SubmitEntryCommand(Guid CampaignId, Guid CustomerId, Guid TicketId) : IRequest<Entry>;
 
-    public class SubmitEntryHandler : BaseBusinessHandler, IRequestHandler<SubmitEntryCommand, Entry>
+    public class SubmitEntryHandler : IRequestHandler<SubmitEntryCommand, Entry>
     {
+        private readonly IUnitOfWork _unitOfWork;
 
-        public SubmitEntryHandler(IBusinessHandlerDependencies businessHandlerDependencies) : base(businessHandlerDependencies)
+        public SubmitEntryHandler(IUnitOfWork unitOfWork)
         {
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<Entry> Handle(SubmitEntryCommand request, CancellationToken cancellationToken)

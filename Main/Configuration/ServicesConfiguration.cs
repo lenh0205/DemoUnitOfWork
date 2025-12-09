@@ -1,10 +1,8 @@
 ﻿using Application;
-using Application.Base;
 using Infrastructure.Base;
 using Infrastructure.DatabaseContext;
 using Infrastructure.UnitOfWork;
 using InterfaceAdapter.Layer;
-using Main.Base;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -37,8 +35,6 @@ namespace Main.Configuration
         public static void AddCustomDependencies(this IServiceCollection services)
         {
             services.AddScoped<IUnitOfWork, UnitOfWork>();
-            services.AddTransient(typeof(IControllerDependencies<>), typeof(ControllerDependencies<>));
-            services.AddTransient<IBusinessHandlerDependencies, BusinessHandlerDependencies>();
             services.AddTransient<IRepositoryDependencies, RepositoryDependencies>();
         }
     }

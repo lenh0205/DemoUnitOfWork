@@ -1,5 +1,5 @@
-﻿using Application.Base;
-using Entities;
+﻿using Entities;
+using InterfaceAdapter.Layer;
 using InterfaceAdapter.Repositories;
 using MediatR;
 
@@ -7,10 +7,13 @@ namespace Application.Commands
 {
     public record CreateCampaignCommand(Guid SellerId, string Name, DateTime StartAt, DateTime EndAt, int MaxEntriesPerUser, Reward Reward) : IRequest<Campaign>;
 
-    public class CreateCampaignHandler : BaseBusinessHandler, IRequestHandler<CreateCampaignCommand, Campaign>
+    public class CreateCampaignHandler : IRequestHandler<CreateCampaignCommand, Campaign>
     {
-        public CreateCampaignHandler(IBusinessHandlerDependencies businessHandlerDependencies) : base(businessHandlerDependencies)
+        private readonly IUnitOfWork _unitOfWork;
+
+        public CreateCampaignHandler(IUnitOfWork unitOfWork)
         {
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<Campaign> Handle(CreateCampaignCommand request, CancellationToken cancellationToken)

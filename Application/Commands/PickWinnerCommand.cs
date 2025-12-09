@@ -1,5 +1,5 @@
-﻿using Application.Base;
-using Entities;
+﻿using Entities;
+using InterfaceAdapter.Layer;
 using InterfaceAdapter.Repositories;
 using MediatR;
 using System.Collections.Concurrent;
@@ -9,12 +9,14 @@ namespace Application.Commands
 {
     public record PickWinnerCommand(Guid CampaignId) : IRequest<Winner>;
 
-    public class PickWinnerHandler : BaseBusinessHandler, IRequestHandler<PickWinnerCommand, Winner>
+    public class PickWinnerHandler : IRequestHandler<PickWinnerCommand, Winner>
     {
         private static readonly ConcurrentDictionary<Guid, object> _drawLocks = new();
+        private readonly IUnitOfWork _unitOfWork;
 
-        public PickWinnerHandler(IBusinessHandlerDependencies businessHandlerDependencies) : base(businessHandlerDependencies)
+        public PickWinnerHandler(IUnitOfWork unitOfWork)
         {
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<Winner> Handle(PickWinnerCommand request, CancellationToken cancellationToken)
